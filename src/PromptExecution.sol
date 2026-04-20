@@ -17,17 +17,17 @@ contract PromptExecution is Ownable {
     }
 
     struct Prompt {
-        string promptId;           // Unique prompt ID
-        string modelId;            // Model used for inference
-        address user;              // User who submitted the prompt
-        address computeNode;       // Node that processed the prompt
+        string promptId; // Unique prompt ID
+        string modelId; // Model used for inference
+        address user; // User who submitted the prompt
+        address computeNode; // Node that processed the prompt
         string encryptedPromptCID; // IPFS CID of encrypted prompt
-        string responseCID;        // IPFS CID of encrypted response
-        PromptStatus status;       // Current status
-        uint256 inputTokens;       // Number of input tokens
-        uint256 outputTokens;      // Number of output tokens
-        uint256 createdAt;         // Submission timestamp
-        uint256 completedAt;       // Completion timestamp
+        string responseCID; // IPFS CID of encrypted response
+        PromptStatus status; // Current status
+        uint256 inputTokens; // Number of input tokens
+        uint256 outputTokens; // Number of output tokens
+        uint256 createdAt; // Submission timestamp
+        uint256 completedAt; // Completion timestamp
     }
 
     // Prompt ID => Prompt
@@ -46,17 +46,11 @@ contract PromptExecution is Ownable {
     address[] public nodeList;
 
     event PromptCreated(
-        string indexed promptId,
-        string indexed modelId,
-        address indexed user,
-        string encryptedPromptCID
+        string indexed promptId, string indexed modelId, address indexed user, string encryptedPromptCID
     );
 
     event ResponseSubmitted(
-        string indexed promptId,
-        address indexed computeNode,
-        string responseCID,
-        uint256 outputTokens
+        string indexed promptId, address indexed computeNode, string responseCID, uint256 outputTokens
     );
 
     event PromptFailed(string indexed promptId, string reason);

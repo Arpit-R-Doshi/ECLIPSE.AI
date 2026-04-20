@@ -13,15 +13,15 @@ contract PaymentManager is Ownable {
     IERC20 public synToken;
 
     // Revenue split percentages (basis points, 10000 = 100%)
-    uint256 public constant MODEL_OWNER_SHARE = 8500;  // 85%
-    uint256 public constant COMPUTE_NODE_SHARE = 1000;  // 10%
-    uint256 public constant PLATFORM_SHARE = 500;       // 5%
+    uint256 public constant MODEL_OWNER_SHARE = 8500; // 85%
+    uint256 public constant COMPUTE_NODE_SHARE = 1000; // 10%
+    uint256 public constant PLATFORM_SHARE = 500; // 5%
 
     struct Subscription {
         string modelId;
-        uint256 tokenQuota;      // Total tokens allocated
-        uint256 tokensUsed;      // Tokens consumed so far
-        uint256 expiresAt;       // Subscription expiry timestamp
+        uint256 tokenQuota; // Total tokens allocated
+        uint256 tokensUsed; // Tokens consumed so far
+        uint256 expiresAt; // Subscription expiry timestamp
         bool isActive;
     }
 
@@ -44,18 +44,8 @@ contract PaymentManager is Ownable {
     // Total platform revenue
     uint256 public totalRevenue;
 
-    event PaymentProcessed(
-        address indexed user,
-        string indexed modelId,
-        uint256 amount,
-        string paymentType
-    );
-    event SubscriptionCreated(
-        address indexed user,
-        string indexed modelId,
-        uint256 quota,
-        uint256 expiresAt
-    );
+    event PaymentProcessed(address indexed user, string indexed modelId, uint256 amount, string paymentType);
+    event SubscriptionCreated(address indexed user, string indexed modelId, uint256 quota, uint256 expiresAt);
     event NodeRewarded(address indexed node, uint256 amount);
     event RewardsClaimed(address indexed node, uint256 amount);
 
@@ -96,13 +86,11 @@ contract PaymentManager is Ownable {
 
         totalRevenue += platformAmount;
 
-        payments.push(PaymentRecord({
-            user: _user,
-            modelId: _modelId,
-            amount: _amount,
-            timestamp: block.timestamp,
-            paymentType: "per-use"
-        }));
+        payments.push(
+            PaymentRecord({
+                user: _user, modelId: _modelId, amount: _amount, timestamp: block.timestamp, paymentType: "per-use"
+            })
+        );
 
         emit PaymentProcessed(_user, _modelId, _amount, "per-use");
         emit NodeRewarded(_computeNode, nodeAmount);
@@ -115,13 +103,9 @@ contract PaymentManager is Ownable {
      * @param _price Price for the subscription in SYN tokens
      * @param _duration Duration in seconds (e.g., 30 days = 2592000)
      */
-    function subscribe(
-        string calldata _modelId,
-        address _modelOwner,
-        uint256 _quota,
-        uint256 _price,
-        uint256 _duration
-    ) external {
+    function subscribe(string calldata _modelId, address _modelOwner, uint256 _quota, uint256 _price, uint256 _duration)
+        external
+    {
         require(_price > 0, "Price must be > 0");
         require(synToken.balanceOf(msg.sender) >= _price, "Insufficient balance");
 
@@ -135,20 +119,18 @@ contract PaymentManager is Ownable {
         totalRevenue += platformAmount;
 
         subscriptions[msg.sender][_modelId] = Subscription({
-            modelId: _modelId,
-            tokenQuota: _quota,
-            tokensUsed: 0,
-            expiresAt: block.timestamp + _duration,
-            isActive: true
+            modelId: _modelId, tokenQuota: _quota, tokensUsed: 0, expiresAt: block.timestamp + _duration, isActive: true
         });
 
-        payments.push(PaymentRecord({
-            user: msg.sender,
-            modelId: _modelId,
-            amount: _price,
-            timestamp: block.timestamp,
-            paymentType: "subscription"
-        }));
+        payments.push(
+            PaymentRecord({
+                user: msg.sender,
+                modelId: _modelId,
+                amount: _price,
+                timestamp: block.timestamp,
+                paymentType: "subscription"
+            })
+        );
 
         emit SubscriptionCreated(msg.sender, _modelId, _quota, block.timestamp + _duration);
         emit PaymentProcessed(msg.sender, _modelId, _price, "subscription");
@@ -160,11 +142,11 @@ contract PaymentManager is Ownable {
      * @param _modelId Model ID
      * @param _tokensUsed Tokens consumed in this request
      */
-    function deductFromSubscription(
-        address _user,
-        string calldata _modelId,
-        uint256 _tokensUsed
-    ) external onlyOwner returns (bool) {
+    function deductFromSubscription(address _user, string calldata _modelId, uint256 _tokensUsed)
+        external
+        onlyOwner
+        returns (bool)
+    {
         Subscription storage sub = subscriptions[_user][_modelId];
         if (!sub.isActive || block.timestamp > sub.expiresAt) {
             return false;
@@ -210,9 +192,7 @@ contract PaymentManager is Ownable {
     /**
      * @dev Get subscription details.
      */
-    function getSubscription(address _user, string calldata _modelId)
-        external view returns (Subscription memory)
-    {
+    function getSubscription(address _user, string calldata _modelId) external view returns (Subscription memory) {
         return subscriptions[_user][_modelId];
     }
 
