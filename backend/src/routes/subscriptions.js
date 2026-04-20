@@ -56,12 +56,13 @@ router.post('/sync', async (req, res) => {
     const user = getOrCreateUser(userAddress);
     const subPrice = Number(model.subscription_price) || 0;
     if (subPrice > 0 && user.balance >= subPrice) {
-      updateUserBalance(userAddress, user.balance - subPrice);
+      // updateUserBalance expects a DELTA, not absolute value
+      updateUserBalance(userAddress, -subPrice);
 
       // Credit 85% to model owner
       const ownerShare = Math.floor(subPrice * 0.85);
-      const owner = getOrCreateUser(model.owner_address);
-      updateUserBalance(model.owner_address, owner.balance + ownerShare);
+      getOrCreateUser(model.owner_address); // ensure owner exists
+      updateUserBalance(model.owner_address, ownerShare);
     }
 
     res.json({
